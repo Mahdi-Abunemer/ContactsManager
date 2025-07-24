@@ -1,0 +1,29 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.Hosting;
+namespace CRUDExample.Filters.ExceptionFilter
+{
+    public class HandleExceptionFilter : IExceptionFilter
+    {
+        private readonly ILogger<HandleExceptionFilter> _logger;
+        private readonly IHostEnvironment _hostEnvirament; 
+         public HandleExceptionFilter(ILogger<HandleExceptionFilter> logger, IHostEnvironment hostEnvirament)
+        {
+            _logger = logger;
+            _hostEnvirament = hostEnvirament;
+        }
+
+        public void OnException(ExceptionContext context)
+        {
+            _logger.LogError("Exception filter {FilterName}.{MethodName}\n{ExceptionType}\n" +
+                "{ExceptionMessage}", nameof(HandleExceptionFilter), nameof(OnException),
+                context.Exception.GetType().ToString(), context.Exception.Message);
+            if (_hostEnvirament.IsDevelopment())
+                context.Result = new ContentResult()
+                {
+                    Content = context.Exception.Message,
+                    StatusCode = 500
+                }; 
+        }
+    }
+}
